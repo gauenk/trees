@@ -1,0 +1,106 @@
+\documentclass[11pt]{article}
+\usepackage[usenames, dvipsnames]{color}
+\usepackage[margin=1in,vmargin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage{url}
+\usepackage[font=small,labelfont=bf,labelsep=period]{caption}
+\usepgfplotslibrary{polar}
+\usepgflibrary{shapes.geometric}
+\usetikzlibrary{calc}
+\pgfplotsset{compat=1.5.1}
+\pgfmathdeclarefunction{gauss}{2}{%
+  \pgfmathparse{1/(#2*sqrt(2*pi))*exp(-((x-#1)^2)/(2*#2^2))}%
+}
+
+\pgfmathdeclarefunction{bivar}{4}{%
+  \pfgmathparse{1/(2*pi*#2*#4) * exp(-((x-#1)^2/#2^2 +
+    (y-#3)^2/#4^2))/2}%
+}
+\usetikzlibrary{shadows}
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage[mode=buildnew]{standalone}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{changepage}
+\usepackage{float}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand*{\everymodeprime}{\ensuremath{\prime}}
+\usepackage [autostyle, english = american]{csquotes}
+\usepackage[backend=bibtex,sorting=none]{biblatex}
+\usepackage{wrapfig}
+\usepackage{csvsimple}
+\bibliography{Master}
+\graphicspath{ {plots/} {figures/} }
+\definecolor{purduegold}{cmyk}{.43,.56,1,0}
+\newcommand{\mcolor}[2][red]{{\color{#1}\textbf{#2}}}
+\pgfplotsset{compat=1.6}
+
+\title{CS 573: Homework 3}
+\author{Kent Gauen}
+\date{\today}
+\begin{document}
+\maketitle
+
+
+\section*{Problem 1: Model Choice Effect on Performance}
+
+\subsection*{(a)}
+
+\begin{minipage}{0.5\textwidth}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{lc_ftr1}
+  \caption{Learning Curves for three models with binary feature values. Three different machine learning models are implemented on the plot above: the Naive Bayes Classifier (nbc), Logistic Regression (lr), and a Support Vector Machine (svm).}
+\end{figure}
+\end{minipage}%
+\hspace{5mm}
+\begin{minipage}{0.5\textwidth}
+  The learning curves for all models are as expected: all models decrease in error when more data is introduced into the model. This behavior is expected since a larger sample of data will behave more like the population data, when compared to a small sample. Therefore, models trained with more data, which is likely more representative of the population data, will generalize better than models trained with less data.\newline
+  However, the end of the learning curves increase in testing error. This is possibly due to the model becoming more general -- the previous smaller errors are a result of overfitting. When the model trains on more data, it's parameters converge to the parameters which optimize the population data. Therefore, it might actually have a higher-error when tested on sub-sets, where the model might have performed better if it were trained with a smaller, more biased sub-sample.
+\end{minipage}
+
+\subsection*{(b)}
+
+We predict the Logistic Regression (LR) model will outperform the Naive Bayes Classifier (NBC). This is because the LR model uses real-valued weights associated with the input vector, which have the opporunity to store more information than the NBC parameters. The LR parameters also describe a relationship between the features, and NBC cannot capture relationships among different features. In fact, NBC's inability to capture dependancies between features is why it is ``naive''.
+
+\subsection*{(c)}
+
+The observed data strongly supports the previous claim that LR will outperform NBC. The means and standard errors do not match and are not intersecting, meaning the confidence intervals are disjoint for a z-value of 1. We can claim with a confidence of about $85$\% that the means are different. While the gap in performance of the two models decreases as the sample size increases, LR still beats NBC in each sample size. 
+
+\section*{Problem 2: Feature Construction Effect on Performance}
+
+\subsection*{(a)}
+
+\begin{minipage}{0.5\textwidth}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{lc_ftr2}
+    \caption{Learning Curves for three models with three-valued feature values: 0, 1, or 2.}
+  \end{figure}
+\end{minipage}%
+\hspace{5mm}
+\begin{minipage}{0.5\textwidth}
+  Notice that when compared to Figure 1, the standard error bars are much smaller for each model in this figures. This is related to the fact that the data representation has increased amount of information in the features, which has lead to greater consistancy in performance on the zero-one loss. The consistancy of performance is possibly because of a greater consistancy of information in all samples of cross-validation. Notice how the difference in model performance is less pronounced than with fewer features too. This is likely because of the large model space for each model. Finally, we also note the continued trend down, which went up in Figure 1. The models do not seem to overfit the data, and the error seems to still be trending downward.
+\end{minipage}
+
+
+\subsection*{(b)}
+
+For LR, we predict the zero-one loss would decrease overall as more data is introduced. This is because the data is now encoded with more information, which would imply the model can make a more informative decision. However, with smaller amounts of data it might be challenging for the model to make accurate prediction, because more discrepancies in features might take longer to train. With more complicated features, perhaps the number of samples is larger for the error to start to decrease when the features are non-binary. This is analogous to a ``complex things take more time to learn'' mantra.
+
+\subsection*{(c)}
+
+Our initial hypothesis was correct with respect to our guess the overall error would decrease for LR when the $2$ was introduced into the data. We were also correct that the LR model did not perform as well will the smaller sample size on the three-valued, when compared to the same sample size with binary features.
+Another change which we did not predict, is that the standard error smaller for every data sample size. Visually, the difference is significant between Figures 1 and 2. This can be explained by the greater amount of information in the data when the $2$ is added. Therefore even in a small sample, there is a greater opporunity for consistency of information. It seems fair to conclude that samples are less likely to be biased when the feature space grows.
+
+
+
+
+\end{document}

@@ -26,22 +26,11 @@ class SupportVectorMachine():
     def computer_error(self):
         preds = self.forward()
         preds = np.multiply(self.tr_labels,preds)
-        prev_pred = len(preds)
-        weight_length = len(self.weights)
-        out_preds = []
-        for i in range(len(preds)):
-            if preds[i] < 1:
-                out_preds += [self.tr_labels[i]*self.tr_data[i]]
-            else:
-                out_preds += [[0 for _ in range(weight_length)]]
-        if len(out_preds) == 0:
-            m_pred = [0 for i in range(len(self.tr_data))]
-        else:
-            m_pred = np.mean(out_preds,0)
-        return m_pred
+        loc = np.where(preds < 1, -self.tr_data.T @ np.diag(self.tr_labels), 0)
+        return np.mean(loc,1)
 
     def sub_gradient_update(self,error):
-        self.weights = self.weights - self.lr * ( self.decay * self.weights - error )
+        self.weights = self.weights - self.lr * ( self.decay * self.weights + error )
 
     def train(self,tr_data_i,tr_labels):
         # init weights

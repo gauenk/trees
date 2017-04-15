@@ -3,17 +3,13 @@ import numpy as np
 from collections import Counter
 
 def input_vector_to_svm(labels_i):
-    for i in range(len(labels_i)):
-        if labels_i[i] == 0: 
-            labels_i[i] = -1
+    labels_i[np.where(labels_i == 0)] = -1
 
 def input_vector_from_svm(labels_i):
-    for i in range(len(labels_i)):
-        if labels_i[i] == -1: 
-            labels_i[i] = 0
+    labels_i[np.where(labels_i == -1)] = 0
 
 def zero_one_loss(preds,labels):
-    return len([1 for i,j in zip(preds,labels) if i != j])/len(labels)
+    return len(np.where(preds != labels)[0])/len(labels)
 
 def add_bias_term(data):
     return np.hstack((data,np.ones(data.shape[0])[:,np.newaxis]))
@@ -83,24 +79,48 @@ def split_data(data,labels,split_number,cv_index):
     data_size = len(data)
     cv_size = int(data_size/split_number)
 
-    tr_index_A = int((cv_index+1)*cv_size % data_size)
-    tr_index_B = int((cv_index+2)*cv_size % data_size)
-
-    tr_index_C = int((cv_index+2)*cv_size % data_size)
-    tr_index_D = int((cv_index+3)*cv_size % data_size)
-
     te_index_A = int(cv_index*cv_size)
     te_index_B = int((cv_index+1)*cv_size)
     
-    
-    cv_tr_data = np.concatenate((data[tr_index_A:tr_index_B],\
-                                 data[tr_index_C:tr_index_D]),0)
-    cv_tr_labels = np.concatenate((labels[tr_index_A:tr_index_B],\
-                                 labels[tr_index_C:tr_index_D]),0)
+    cv_tr_data = np.concatenate((data[0:te_index_A],\
+                                 data[te_index_B:]),0)
+    cv_tr_labels = np.concatenate((labels[0:te_index_A],\
+                                 labels[te_index_B:]),0)
     cv_te_data = data[te_index_A:te_index_B]
     cv_te_labels = labels[te_index_A:te_index_B]
-
+    
     return cv_tr_data,cv_tr_labels,cv_te_data,cv_te_labels
+
+# def split_data(data,labels,split_number,cv_index):
+
+#     data_size = len(data)
+#     cv_size = int(data_size/split_number)
+
+#     tr_index_A = int((cv_index+1)*cv_size % data_size+1)
+#     tr_index_B = int((cv_index+2)*cv_size % data_size+1)
+
+#     tr_index_C = int((cv_index+2)*cv_size % data_size+1)
+#     tr_index_D = int((cv_index+3)*cv_size % data_size+1)
+
+#     te_index_A = int(cv_index*cv_size)
+#     te_index_B = int((cv_index+1)*cv_size)
+    
+#     print(data_size,split_number)
+#     print(tr_index_A,tr_index_B)
+#     print(tr_index_C,tr_index_D)
+#     print(te_index_A,te_index_B)
+
+#     cv_tr_data = np.concatenate((data[tr_index_A:tr_index_B],\
+#                                  data[tr_index_C:tr_index_D]),0)
+#     cv_tr_labels = np.concatenate((labels[tr_index_A:tr_index_B],\
+#                                  labels[tr_index_C:tr_index_D]),0)
+#     cv_te_data = data[te_index_A:te_index_B]
+#     cv_te_labels = labels[te_index_A:te_index_B]
+
+#     print(cv_tr_data.shape,cv_tr_labels.shape)
+#     print(cv_te_data.shape,cv_te_labels.shape)
+    
+#     return cv_tr_data,cv_tr_labels,cv_te_data,cv_te_labels
 
 def write_stats(model_losses):
     fn = "./output/output_"+str(datetime.datetime.now()).replace(" ","_").replace(":","-").replace(".","") + ".csv"

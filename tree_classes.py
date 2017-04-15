@@ -52,13 +52,13 @@ class DecisionTree():
             
         self.left = DecisionTree(self.data[np.where(data_col==1)],\
                             self.labels[np.where(data_col==1)],\
-                            self.max_depth,randomForestMode=False,\
+                            self.max_depth,randomForestMode=True,\
                             #self.randomForestMode,\
                             current_depth=self.current_depth+1,\
                             weights=weights_left)
         self.right = DecisionTree(self.data[np.where(data_col==0 )],\
                             self.labels[np.where(data_col==0)],\
-                            self.max_depth,randomForestMode=False,\
+                            self.max_depth,randomForestMode=True,\
                             #self.randomForestMode,\
                             current_depth=self.current_depth+1,\
                             weights=weights_right)

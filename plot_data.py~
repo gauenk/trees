@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+
+import os,sys,glob,re
+import numpy as np
+import matplotlib.pyplot as plt
+
+def loadFile(fn):
+    with open(fn,"r") as f:
+        lines = f.readlines()
+    header = lines[0].strip().split(",")
+    print(lines[1:])
+    return header,np.array(list(map(lambda x: np.array([float(y) for y in  x.strip().split(",")]),lines[1:])))
+
+def get_file_list():
+    files = ','.join(glob.glob("./output/*"))
+    rex = r"\./output/(?P<fn>exp(?P<exp>[0-9])_2017-[0-9]{2}-(?P<day>[0-9]{2})_(?P<hr>[0-9]{2})-(?P<min>[0-9]{2})-[0-9]+)_data_bal_(?P<bal>[0-9.]+)\.csv\,"
+    info = np.asarray(re.findall(rex,files))
+    names = info[:,0]
+    uniq_exp = np.unique(info[:,1])
+    br_exp = info[:,1]
+    #exp_range = uniq_exp[:,np.newaxis][:,:,np.newaxis].repeat(len(br_exp[0]),2)    
+    #res = np.squeeze(br_exp == exp_range)
+    exp_list = []
+    for i in range(len(uniq_exp)):
+        rows_exp = np.squeeze(info[np.where(br_exp == uniq_exp[i]),:])
+        uniq_types = np.unique(rows_exp[:,-1])
+        type_list = []
+        for j in range(len(uniq_types)):
+            br_type = rows_exp[:,5]
+            rows_type = np.squeeze(rows_exp[np.where(br_type == uniq_types[j]),:])
+            indx = np.lexsort((rows_type[:,4],rows_type[:,3],rows_type[:,2]))
+            type_list += [rows_type[indx[-1],:]]
+        exp_list += [type_list]
+    return np.array(exp_list)
+
+def plot_experiments(exp_list):
+
+    for exp in exp_list:
+        exp_vals = []
+        type_label = []
+        print(exp[1][1])
+        for idx in range(len(exp[:,-1])):
+            fn = get_filename(exp[idx])
+            exp_vals += [loadFile(fn)]
+            print(exp_vals)
+            type_label += [exp[idx,-1]]
+        print(np.mean(exp_vals[1:,:]))
+        print(type_label)
+    # for model in model_losses.keys():
+    #     if model_losses[model][0] is not None and np.size(model_losses[model][0]) != 0:
+    #         mean = np.mean(model_losses[model][0],1)
+    #         stderr = np.std(model_losses[model][0],1)/cv_split_number
+    #         model_lines[model] = plt.errorbar(xaxis_var,mean,\
+    #                 stderr,fmt=model_losses[model][1],label=model)
+
+
+def get_filename(_exp):
+    return "./output/" + _exp[0]+"_data_bal_" + _exp[-1] + ".csv"
+
+if __name__ == "__main__":
+
+    file_list = get_file_list()
+    plot_experiments(file_list)

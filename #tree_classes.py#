@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 class DecisionTree():
 
@@ -199,8 +198,6 @@ class Bagging():
 
     def train(self):
         dts = []
-        print(self.tree_count)
-        print(self.data.shape)
         for index in range(self.tree_count):
             sample_data,sample_label = self.sample_data()
             dts += [DecisionTree(sample_data,sample_label,\
@@ -242,6 +239,7 @@ class RandomForest():
     def train(self):
         dts = []
         for index in range(self.tree_count):
+            print(index)
             sample_data,sample_label = self.sample_data()
             dts += [DecisionTree(sample_data,sample_label,\
                                  max_depth=self.max_depth,\

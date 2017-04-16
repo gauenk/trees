@@ -58,6 +58,7 @@ def k_fold_cross_validation(tr_data,tr_labels,split_number,tree_depth=10,tree_co
         bg.train()
         preds = bg.predict(cv_te_data)
         loss = zero_one_loss(preds,cv_te_labels)
+        print(loss)
         bt_zo_loss += [loss]
 
         print("RF")
@@ -66,6 +67,7 @@ def k_fold_cross_validation(tr_data,tr_labels,split_number,tree_depth=10,tree_co
         rf.train()
         preds = rf.predict(cv_te_data)
         loss = zero_one_loss(preds,cv_te_labels)
+        print(loss)
         rf_zo_loss += [loss]
 
         print("ADA")
@@ -74,6 +76,7 @@ def k_fold_cross_validation(tr_data,tr_labels,split_number,tree_depth=10,tree_co
         bdt.train()
         preds = bdt.predict(cv_te_data)
         loss = zero_one_loss(preds,cv_te_labels)
+        print(loss)
         bdt_zo_loss += [loss]
 
         ## svm
@@ -401,7 +404,6 @@ def experiment_3(data,labels,cv_split_number,no_examples = 500):
     tree_depth = [5,10,15,20]
     #tree_depth = [5,10]
     for i in tree_depth:
-        print("HERE",i)
         cv_tr_data = tr_data[:no_examples,:1000]
         cv_tr_labels = tr_labels[:no_examples]
 
@@ -409,7 +411,7 @@ def experiment_3(data,labels,cv_split_number,no_examples = 500):
         input_vector_to_svm(cv_tr_labels)
 
         dt_loss,bt_loss,rf_loss,bdt_loss,_ = \
-        k_fold_cross_validation(tr_data,tr_labels,cv_split_number,tree_depth=i,use_svm=False)
+        k_fold_cross_validation(cv_tr_data,cv_tr_labels,cv_split_number,tree_depth=i,use_svm=False)
         dt_losses += [dt_loss]
         bt_losses += [bt_loss]
         rf_losses += [rf_loss]
@@ -439,6 +441,7 @@ def experiment_4(data,labels,cv_split_number,no_examples = 500):
 
     tree_count = [10,25,50,100]
     #tree_count = [10,25]
+    print("exp4")
     for i in tree_count:
         cv_tr_data = tr_data[:no_examples,:1000]
         cv_tr_labels = tr_labels[:no_examples]
@@ -447,10 +450,11 @@ def experiment_4(data,labels,cv_split_number,no_examples = 500):
         input_vector_to_svm(cv_tr_labels)
 
         _,bt_loss,rf_loss,btd_loss,_ = \
-    k_fold_cross_validation(tr_data,tr_labels,cv_split_number,tree_count=i,only_ensemble=True)
+    k_fold_cross_validation(cv_tr_data,cv_tr_labels,cv_split_number,tree_count=i,only_ensemble=True)
         bt_losses += [bt_loss]
         rf_losses += [rf_loss]
         bdt_losses += [bdt_loss]
+        print(bt_loss,rf_loss,bdt_loss)
     model_losses = {"bt": bt_losses,
                     "rf": rf_losses,
                     "bdt": bdt_losses}

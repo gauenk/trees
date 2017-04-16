@@ -52,13 +52,13 @@ class DecisionTree():
             
         self.left = DecisionTree(self.data[np.where(data_col==1)],\
                             self.labels[np.where(data_col==1)],\
-                            self.max_depth,randomForestMode=True,\
+                            self.max_depth,randomForestMode=self.randomForestMode,\
                             #self.randomForestMode,\
                             current_depth=self.current_depth+1,\
                             weights=weights_left)
         self.right = DecisionTree(self.data[np.where(data_col==0 )],\
                             self.labels[np.where(data_col==0)],\
-                            self.max_depth,randomForestMode=True,\
+                            self.max_depth,randomForestMode=self.randomForestMode,\
                             #self.randomForestMode,\
                             current_depth=self.current_depth+1,\
                             weights=weights_right)
@@ -195,7 +195,8 @@ class Bagging():
         dts = []
         for index in range(self.tree_count):
             sample_data,sample_label = self.sample_data()
-            dts += [DecisionTree(sample_data,sample_label,max_depth=self.max_depth)]
+            dts += [DecisionTree(sample_data,sample_label,\
+                                 max_depth=self.max_depth)]
             dts[-1].train()
         self.trees = dts
         
@@ -233,9 +234,11 @@ class RandomForest():
     def train(self):
         dts = []
         for index in range(self.tree_count):
+            print(index)
             sample_data,sample_label = self.sample_data()
             dts += [DecisionTree(sample_data,sample_label,\
-                                 randomForestMode=False)]
+                                 max_depth=self.max_depth,\
+                                 randomForestMode=True)]
             dts[-1].train()
         self.trees = dts
 
@@ -281,7 +284,8 @@ class AdaMaxDT():
         for index in range(self.tree_count):
 
             dt = DecisionTree(self.data,self.labels,\
-                                 weights=self.weights)
+                              max_depth=self.max_depth,\
+                              weights=self.weights)
             dt.train()
             preds = dt.predict(self.data)
             error = self.zero_one_loss(preds,self.labels)

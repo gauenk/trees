@@ -38,34 +38,39 @@ def k_fold_cross_validation(tr_data,tr_labels,split_number,tree_depth=10,tree_co
     svm_zo_loss = []
 
     for i in range(split_number):
+        print("CV",i)
 
         cv_tr_data,cv_tr_labels,cv_te_data,cv_te_labels\
             = split_data(tr_data,tr_labels,split_number,i)
 
+        print("DT")
         ## dt
         if not only_ensemble:
-            dt = DecisionTree(cv_tr_data,cv_tr_labels)
+            dt = DecisionTree(cv_tr_data,cv_tr_labels,max_depth=tree_depth)
             dt.train()
             preds = dt.predict(cv_te_data)
             loss = zero_one_loss(preds,cv_te_labels)
             dt_zo_loss += [loss]
         
+        print("BG")
         ## bg
-        bg = Bagging(cv_tr_data,cv_tr_labels)
+        bg = Bagging(cv_tr_data,cv_tr_labels,max_depth=tree_depth)
         bg.train()
         preds = bg.predict(cv_te_data)
         loss = zero_one_loss(preds,cv_te_labels)
         bt_zo_loss += [loss]
 
+        print("RF")
         ## rf
-        rf = RandomForest(cv_tr_data,cv_tr_labels)
+        rf = RandomForest(cv_tr_data,cv_tr_labels,max_depth=tree_depth)
         rf.train()
         preds = rf.predict(cv_te_data)
         loss = zero_one_loss(preds,cv_te_labels)
         rf_zo_loss += [loss]
 
+        print("ADA")
         ## adamax
-        bdt = AdaMaxDT(cv_tr_data,cv_tr_labels)
+        bdt = AdaMaxDT(cv_tr_data,cv_tr_labels,max_depth=tree_depth)
         bdt.train()
         preds = bdt.predict(cv_te_data)
         loss = zero_one_loss(preds,cv_te_labels)
@@ -396,6 +401,7 @@ def experiment_3(data,labels,cv_split_number,no_examples = 500):
     tree_depth = [5,10,15,20]
     #tree_depth = [5,10]
     for i in tree_depth:
+        print("HERE",i)
         cv_tr_data = tr_data[:no_examples,:1000]
         cv_tr_labels = tr_labels[:no_examples]
 
@@ -429,6 +435,7 @@ def experiment_4(data,labels,cv_split_number,no_examples = 500):
 
     bt_losses = []
     rf_losses = []
+    bdt_losses = []
 
     tree_count = [10,25,50,100]
     #tree_count = [10,25]
@@ -439,17 +446,18 @@ def experiment_4(data,labels,cv_split_number,no_examples = 500):
         # data labels from {0,1} to {-1,1}
         input_vector_to_svm(cv_tr_labels)
 
-        _,bt_loss,rf_loss,_ = \
+        _,bt_loss,rf_loss,btd_loss,_ = \
     k_fold_cross_validation(tr_data,tr_labels,cv_split_number,tree_count=i,only_ensemble=True)
         bt_losses += [bt_loss]
         rf_losses += [rf_loss]
-
+        bdt_losses += [bdt_loss]
     model_losses = {"bt": bt_losses,
-                    "rf": rf_losses}
+                    "rf": rf_losses,
+                    "bdt": bdt_losses}
 
     write_losses(model_losses,tree_count,"exp4")
 
-    return np.array(bt_losses),np.array(rf_losses),\
+    return np.array(bt_losses),np.array(rf_losses),np.array(bdt_losses),\
         tree_count,"Tree Count" ## last is the x-axis for plots
 
 
